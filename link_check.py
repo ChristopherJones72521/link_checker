@@ -25,8 +25,8 @@ def crawl_website(root_link):
                     page = requests.get(root_link)
                     logger.info(root_link + ' is a new link returning a ' + str(page.status_code))
                 except Exception as e:
-                    logger.exception('to_visit:' + str(to_visit))
-                    logger.exception('root_link' + root_link)
+                    logger.exception('to_visit: ' + str(to_visit))
+                    logger.exception('root_link: ' + root_link)
                     logger.exception(e)
 
                 # Add current link to visted links list
@@ -82,13 +82,8 @@ def check_if_new_link(link_to_check):
 
 crawl_website(url)
 
-#TODO begin checking each page with a console message explaining which page we're gathering or checking links on
-#TODO dedup the list of urls
 #TODO Include website URL as arguments to script
 #TODO Create function to visit all links on first page of links and grab links from these pages.
 # will have to be a recursive function which automatically visits discovered links and continues until no non-duplicate links exist
-#TODO Check each link against a list of links. If link does not exist in list, add it to the to_visit list
-# The approach will be to create the master list of links to check before checking
-#TODO Add conditional check for 'is internal' and create separate list 'external_links' for any that don't qualify
 #TODO Consider email reporting for failures and possibly a daily link check report (internal and outbound)
 #TODO Consider UI Testing (will I need selenium? Or do I just check for the presence of content?)'''
