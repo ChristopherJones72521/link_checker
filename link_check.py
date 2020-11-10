@@ -32,7 +32,7 @@ def crawl_website(root_link):
 
                 # Scrub list of all irrelevant links
                 for link in tmp_horizon: # there has to be a better way to do the below
-                    if link != None and link != '/' and link != '' and link != '#' and link[0:10] != 'javascript' and link[0] != '#' and link[0:4] != 'http' and link[0:6] != 'mailto':
+                    if link != None and link != '/' and link != '' and link[0:10] != 'link.aspx?' and link != '~' and link != '#' and link[0:10] != 'javascript' and link[0] != '#' and link[0:4] != 'http' and link[0:6] != 'mailto':
                         internal_links.append('https://www.nyrr.org' + link)
                     elif link != None and len(link) > 4 and link[0:4] == 'http':
                         external_links.append(link)
