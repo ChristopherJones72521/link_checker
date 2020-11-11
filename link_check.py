@@ -1,5 +1,6 @@
 import requests
 import validators
+import pprint
 from logzero import logger
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
@@ -13,6 +14,7 @@ visited = [] # links already visited. Can be used to reference against to avoid 
 internal_links = [] # anything without https:// these are the links we will be checking.
 external_links = [] # bucket to dump external links. May be useful for reporting
 bad_links = [] # anything that does not return a 200
+pp = pprint.PrettyPrinter(indent=4)
 
 def crawl_website(root_link):
     tmp_horizon = []
@@ -24,10 +26,12 @@ def crawl_website(root_link):
                 try:                    
                     page = requests.get(root_link)
                     logger.info(root_link + ' is a new link returning a ' + str(page.status_code))
-                except Exception as e:
-                    logger.exception('to_visit: ' + str(to_visit))
+                except Exception as e:                    
                     logger.exception('root_link: ' + root_link)
+                    pprint.pprint((to_visit))
                     logger.exception(e)
+                    bad_links.append(root_link)
+                    pass
 
                 # Add current link to visted links list
                 visited.append(root_link)
@@ -60,14 +64,14 @@ def crawl_website(root_link):
                             # logger.info('Found new link: %s adding to to_visit list', tmp_link)
                             to_visit.append(tmp_link)
                 else:
-                    logger.info('This page is not online') # Create a list for pages that are offline. 
+                    logger.info(root_link + ' is not online ' + '| Status code: ' + page.status_code) # Create a list for pages that are offline. 
                     bad_links.append(root_link)
-            else:
-                logger.info('There are no new links to check')
-        else:
-            logger.info('There are no links to check')
-    else:
-        logger.info('Not a valid URL')
+    #         else:
+    #             logger.info('There are no new links to check')
+    #     else:
+    #         logger.info('There are no links to check')
+    # else:
+    #     logger.info('Not a valid URL')
     if to_visit:
         crawl_website(to_visit.pop(0))
     else: 
