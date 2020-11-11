@@ -52,17 +52,22 @@ def crawl_website(root_link):
 
     if to_visit: # If the to_visit list contains a value
         latest_link = to_visit.pop(0)
-        if validators.url(latest_link) and latest_link: #### I Think you will need to do additional checking here         
-            crawl_website(latest_link) # Run the function again using this value
-        else:
-            logger.info('%s is not a valid URL', root_link)
-            logger.info(latest_link)
-            bad_links.append(latest_link)
-            next_link = to_visit.pop(0)
-            if next_link:
-                crawl_website(next_link)
+        try: 
+            if validators.url(latest_link) and latest_link: #### I Think you will need to do additional checking here         
+                crawl_website(latest_link) # Run the function again using this value
             else:
-                "There are no more links to crawl"
+                logger.info('%s is not a valid URL', root_link)
+                logger.info(latest_link)
+                bad_links.append(latest_link)
+                return True
+                # next_link = to_visit.pop(0)
+                # if next_link:
+                #     crawl_website(next_link)
+                # else:
+                #     "There are no more links to crawl"
+        except Exception as e:
+            logger.info(latest_link)
+            logger.exception(e)
     else:
         logger.info("These are the bad links found")
         pprint.pprint((bad_links))
