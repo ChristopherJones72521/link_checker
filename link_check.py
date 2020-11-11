@@ -40,9 +40,9 @@ def crawl_website(root_link):
                 for tmp_link in internal_links:
                     if check_if_new_link(tmp_link):                        
                         to_visit.append(tmp_link)
-            else:
-                logger.info(root_link + ' is not returning a 200 or is not an HTML page ' + '| Status code: ' + str(page.status_code)) # Create a list for pages that are offline
-                bad_links.append(root_link + " | Status code: " + str(page.status_code))                
+            else:                
+                logger.info(root_link + ' is not returning a 200 or is not an HTML page ' + '| Status code: ' + str(page.status_code))
+                bad_links.append(root_link + " | Status code: " + str(page.status_code))
     except Exception as e:                    
         logger.exception('root_link: ' + root_link)
         logger.exception(e)
@@ -52,7 +52,7 @@ def crawl_website(root_link):
     if to_visit: # If the to_visit list contains a value
         latest_link = to_visit.pop(0)
         try: 
-            if validators.url(latest_link) and latest_link: #### I Think you will need to do additional checking here         
+            if validators.url(latest_link) and latest_link:
                 crawl_website(latest_link) # Run the function again using this value
             else:
                 logger.info('%s is not a valid URL', root_link)
