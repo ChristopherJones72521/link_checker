@@ -60,7 +60,10 @@ def crawl_website(root_link):
             logger.info(latest_link)
             bad_links.append(latest_link)
             next_link = to_visit.pop(0)
-            crawl_website(next_link)
+            if next_link:
+                crawl_website(next_link)
+            else:
+                "There are no more links to crawl"
     else:
         logger.info("These are the bad links found")
         pprint.pprint((bad_links))
