@@ -64,8 +64,8 @@ def crawl_website(root_link):
                             # logger.info('Found new link: %s adding to to_visit list', tmp_link)
                             to_visit.append(tmp_link)
                 else:
-                    logger.info(root_link + ' is not online ' + '| Status code: ' + page.status_code) # Create a list for pages that are offline. 
-                    bad_links.append(root_link)
+                    logger.info(root_link + ' is not online ' + '| Status code: ' + str(page.status_code)) # Create a list for pages that are offline. 
+                    bad_links.append(root_link + " | Status code: " + str(page.status_code))
     #         else:
     #             logger.info('There are no new links to check')
     #     else:
@@ -74,12 +74,14 @@ def crawl_website(root_link):
     #     logger.info('Not a valid URL')
     if to_visit:
         crawl_website(to_visit.pop(0))
-    else: 
+    else:
+        logger.info("These are the bad links found")
+        pprint.pprint((bad_links))
         logger.info("You've reached the end of the list. Cheers!")
 
 def check_if_new_link(link_to_check):
     if link_to_check not in to_visit and link_to_check not in visited:
-        to_visit.append(link_to_check)
+        to_visit.append(link_to_check) # Why is the link added twice?
         return True
     else: 
         return False
