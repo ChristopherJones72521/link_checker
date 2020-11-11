@@ -5,8 +5,7 @@ from logzero import logger
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
-url = 'https://www.nyrr.org' # This should be the hostname / root URL as we will be appending to it later. 
-# horizon = [] # All links on the site across all pages. Will be useful for indexing. 
+url = 'https://www.nyrr.org' # This should be the hostname / root URL as we will be appending to it later.  
 to_visit = [] # links not vistited in the horizon
 visited = [] # links already visited. Can be used to reference against to avoid duplicate checking
 internal_links = [] # anything without https:// these are the links we will be checking.
@@ -60,11 +59,6 @@ def crawl_website(root_link):
                 logger.info(latest_link)
                 bad_links.append(latest_link)
                 return True
-                # next_link = to_visit.pop(0)
-                # if next_link:
-                #     crawl_website(next_link)
-                # else:
-                #     "There are no more links to crawl"
         except Exception as e:
             logger.info(latest_link)
             logger.exception(e)
@@ -95,8 +89,7 @@ def clean_links(list_of_links):
 crawl_website(url)
 
 #TODO Add User Agent data
-#TODO Include website URL as arguments to script
-#TODO Create function to visit all links on first page of links and grab links from these pages.
-# will have to be a recursive function which automatically visits discovered links and continues until no non-duplicate links exist
+#TODO Include website URL as argument
 #TODO Consider email reporting for failures and possibly a daily link check report (internal and outbound)
+#TODO MS Teams integration?
 #TODO Consider UI Testing (will I need selenium? Or do I just check for the presence of content?)'''
