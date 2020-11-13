@@ -8,27 +8,48 @@ from bs4 import BeautifulSoup
 pp = pprint.PrettyPrinter(indent=4)
 root_url = 'https://www.nyrr.org' # This should be the hostname / root URL as we will be appending to it later.
 horizon = {
-    root_url : [False, '', ''] # [has been checked, status code, content type]
+    'https://www.nyrr.org' : [False, 200],
+    'https://www.nyrr.org/About' : [False, 200],
+    'https://www.nyrr.org/About/Our-Programs' : [False, 200],
+    'https://www.nyrr.org/About/Partners' : [False, 200],
+    'https://www.nyrr.org/About/Our-Team' : [False, 200],
+    'https://www.nyrr.org/About/Mission-and-Impact' : [False, 200],
+    'https://www.nyrr.org/About/Our-Core-Values' : [False, 200],
+    'https://www.nyrr.org/About/Careers' : [False, 200],
+    'https://www.nyrr.org/About/History' : [False, 200],
+    'https://www.nyrr.org/tcsnycmarathon' : [False, 200],
+    'https://www.nyrr.org/RunCenter' : [False, 200],
+    'https://www.nyrr.org/media-center' : [False, 200],
+    'https://www.nyrr.org/Community' : [False, 200],
+    'https://www.nyrr.org/GetInvolved/Donate' : [False, 200],
+    'https://www.nyrr.org/Gift-Card?productId=20001' : [False, 200],
+    'https://www.nyrr.org/join' : [False, 200],
+    'https://www.nyrr.org/run/race-calendar' : [False, 200],
+    'https://www.nyrr.org/Run/Photos-And-Stories' : [False, 200],
+    'https://www.nyrr.org/Run/Virtual-Racing' : [False, 200],
+    'https://www.nyrr.org/Run/Striders' : [False, 200],
+    'https://www.nyrr.org/OpenRun' : [False, 200],
+    'https://www.nyrr.org/Run/Run-With-Charity' : [False, 200],
+    'https://www.nyrr.org/Run/Race-Free' : [False, 200]
 }
 
 # Master function (one function to rule them all)
 def crawl_website():
-    for url in horizon:        
+    for url in list(horizon):
         if check_url(url):
             found_html = get_html(url)        
             found_links = get_links(found_html)        
             add_new_links_to_horizon(found_links)
             
             logger.info('Key: %s', url)
-            logger.info('horizon: %s', horizon)
+            # logger.info('horizon: %s', horizon)
             if horizon[url][0] == False:
                 crawl_website()
             elif horizon[url][0] == True:                
                 pass
             else:
                 logger.info('There was some kind of error in the checked_value check')
-        else:
-            logger.info('You\'ve reached the end of the list! Cheers!')
+    logger.info('You\'ve reached the end of the list! Cheers!')
     pprint.pprint(horizon)
 
 def check_url(url):
@@ -63,7 +84,7 @@ def add_new_links_to_horizon(current_page_links):
     for url in current_page_links.keys():        
         if url != None and len(url) > 4 and url not in horizon and check_rules(url):
             full_url = urljoin(root_url, url)
-            # logger.info('This url is being added to the horizon: %s', full_url)
+            logger.info('This url is being added to the horizon: %s', full_url)
             horizon[full_url] = [False, '', '']
 
 def check_rules(url):
