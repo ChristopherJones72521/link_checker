@@ -18,8 +18,8 @@ def crawl_website(root_link):
 
     try:
         if check_if_new_link(root_link):
-            # Assign webpage to page object                                
-            page = requests.get(root_link)
+            # Assign webpage to page object
+            page = requests.get(root_link) #The issue is somehow here?
 
             # Add current link to visted links list            
             visited.append(root_link)
@@ -43,29 +43,28 @@ def crawl_website(root_link):
             else:                
                 logger.info(root_link + ' is not returning a 200 or is not an HTML page ' + '| Status code: ' + str(page.status_code))
                 bad_links.append(root_link + " | Status code: " + str(page.status_code))
+
+        if to_visit: # If the to_visit list contains a value
+            latest_link = to_visit.pop(0)
+            try: 
+                if validators.url(latest_link) and latest_link:
+                    crawl_website(latest_link) # Run the function again using this value
+                else:
+                    logger.info('%s is not a valid URL', latest_link)
+                    logger.info(latest_link)
+                    bad_links.append(latest_link)
+            except Exception as e:
+                logger.info(latest_link)
+                logger.exception(e)
+        else:
+            logger.info("These are the bad links found")
+            pprint.pprint((bad_links))
+            logger.info("You've reached the end of the list. Cheers!")
     except Exception as e:                    
         logger.exception('root_link: ' + root_link)
         logger.exception(e)
         bad_links.append(root_link)
-        pprint.pprint((bad_links))        
-
-    if to_visit: # If the to_visit list contains a value
-        latest_link = to_visit.pop(0)
-        try: 
-            if validators.url(latest_link) and latest_link:
-                crawl_website(latest_link) # Run the function again using this value
-            else:
-                logger.info('%s is not a valid URL', root_link)
-                logger.info(latest_link)
-                bad_links.append(latest_link)
-                return True
-        except Exception as e:
-            logger.info(latest_link)
-            logger.exception(e)
-    else:
-        logger.info("These are the bad links found")
         pprint.pprint((bad_links))
-        logger.info("You've reached the end of the list. Cheers!")
 
 def check_if_new_link(link_to_check):
     if link_to_check not in to_visit and link_to_check not in visited:
