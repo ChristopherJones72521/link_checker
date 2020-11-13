@@ -87,6 +87,7 @@ def clean_links(list_of_links):
 
 crawl_website(url)
 
+#TODO Verbose mode
 #TODO Add User Agent data
 #TODO Include website URL as argument
 #TODO Consider email reporting for failures and possibly a daily link check report (internal and outbound)

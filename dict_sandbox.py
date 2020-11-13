@@ -65,6 +65,9 @@ for url in current_page_links.keys():
 # At the end of this process, print horizon
 # pprint.pprint(horizon)
 res = next(iter(horizon))
-print(res)
+# print(res)
+
+url = 'https://www.nyrr.org/Train/Classes/OutdoorRunningClass'
+print(url[20:])
 
 # Challenge #2 pull all links off of website and store as dict keys, the values will be [has_been_checked, status code, ]
