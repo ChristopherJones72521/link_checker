@@ -81,11 +81,12 @@ def get_links(url):
     return current_page_links
 
 def add_new_links_to_horizon(current_page_links):
-    for url in current_page_links.keys():        
-        if url != None and len(url) > 4 and url not in horizon and check_rules(url):
-            full_url = urljoin(root_url, url)
-            logger.info('This url is being added to the horizon: %s', full_url)
-            horizon[full_url] = [False, '', '']
+    for url in current_page_links.keys():
+        full_url = urljoin(root_url, url)
+        if url != None and len(url) > 4 and check_rules(url):
+            if full_url not in horizon:
+                logger.info('This url is being added to the horizon: %s', full_url)
+                horizon[full_url] = [False, '', '']
 
 def check_rules(url):
     rules = [
