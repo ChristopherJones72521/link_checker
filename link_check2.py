@@ -12,24 +12,23 @@ horizon = {
 }
 
 # Master function (one function to rule them all)
-def crawl_website(url):
-    if check_url(url):
-        found_html = get_html(url)        
-        found_links = get_links(found_html)        
-        add_new_links_to_horizon(found_links)
-
-        # My intention here is to check the next key which hasn't already been checked
-        for key in horizon: # I keep checking the same link over and over?! Why am I not moving to the next dictionary value?
-            logger.info('Key: %s', key)
+def crawl_website():
+    for url in horizon:        
+        if check_url(url):
+            found_html = get_html(url)        
+            found_links = get_links(found_html)        
+            add_new_links_to_horizon(found_links)
+            
+            logger.info('Key: %s', url)
             logger.info('horizon: %s', horizon)
-            if horizon[key][0] == False:
-                crawl_website(key)
-            elif horizon[key][0] == True:                
+            if horizon[url][0] == False:
+                crawl_website()
+            elif horizon[url][0] == True:                
                 pass
             else:
                 logger.info('There was some kind of error in the checked_value check')
-    else:
-        logger.info('You\'ve reached the end of the list! Cheers!')
+        else:
+            logger.info('You\'ve reached the end of the list! Cheers!')
     pprint.pprint(horizon)
 
 def check_url(url):
@@ -87,4 +86,4 @@ def check_rules(url):
     else:
         return False  
 
-crawl_website(root_url)
+crawl_website()
