@@ -16,7 +16,9 @@ def crawl_website(url):
     if check_url(url):
         found_html = get_html(url)        
         found_links = get_links(found_html)        
-        check_for_new_links(found_links)        
+        add_new_links_to_horizon(found_links)
+
+        # My intention here is to check the next key which hasn't already been checked
         for key in horizon: # I keep checking the same link over and over?! Why am I not moving to the next dictionary value?
             logger.info('Key: %s', key)
             logger.info('horizon: %s', horizon)
@@ -58,7 +60,7 @@ def get_links(url):
             current_page_links[link.get('href')] = [False, '', '']
     return current_page_links
 
-def check_for_new_links(current_page_links):
+def add_new_links_to_horizon(current_page_links):
     for url in current_page_links.keys():        
         if url != None and len(url) > 4 and url not in horizon and check_rules(url):
             full_url = urljoin(root_url, url)
