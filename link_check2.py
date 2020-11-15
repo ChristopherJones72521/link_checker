@@ -8,35 +8,15 @@ from bs4 import BeautifulSoup
 pp = pprint.PrettyPrinter(indent=4)
 root_url = 'https://www.nyrr.org' # This should be the hostname / root URL as we will be appending to it later.
 horizon = {
-    'https://www.nyrr.org' : [False, 200],
-    'https://www.nyrr.org/About' : [False, 200],
-    'https://www.nyrr.org/About/Our-Programs' : [False, 200],
-    'https://www.nyrr.org/About/Partners' : [False, 200],
-    'https://www.nyrr.org/About/Our-Team' : [False, 200],
-    'https://www.nyrr.org/About/Mission-and-Impact' : [False, 200],
-    'https://www.nyrr.org/About/Our-Core-Values' : [False, 200],
-    'https://www.nyrr.org/About/Careers' : [False, 200],
-    'https://www.nyrr.org/About/History' : [False, 200],
-    'https://www.nyrr.org/tcsnycmarathon' : [False, 200],
-    'https://www.nyrr.org/RunCenter' : [False, 200],
-    'https://www.nyrr.org/media-center' : [False, 200],
-    'https://www.nyrr.org/Community' : [False, 200],
-    'https://www.nyrr.org/GetInvolved/Donate' : [False, 200],
-    'https://www.nyrr.org/Gift-Card?productId=20001' : [False, 200],
-    'https://www.nyrr.org/join' : [False, 200],
-    'https://www.nyrr.org/run/race-calendar' : [False, 200],
-    'https://www.nyrr.org/Run/Photos-And-Stories' : [False, 200],
-    'https://www.nyrr.org/Run/Virtual-Racing' : [False, 200],
-    'https://www.nyrr.org/Run/Striders' : [False, 200],
-    'https://www.nyrr.org/OpenRun' : [False, 200],
-    'https://www.nyrr.org/Run/Run-With-Charity' : [False, 200],
-    'https://www.nyrr.org/Run/Race-Free' : [False, 200]
+    root_url : [False, 200],
 }
 
 # Master function (one function to rule them all)
 def crawl_website():
-    for url in list(horizon):
+    for url in list(horizon): # I think this might be where it is failing. The list never updates with the new URLs on the second pass. 
+        logger.info('-------[We are not checking this: %s url]------', url)
         if check_url(url):
+            logger.info('Check URL returned True')
             found_html = get_html(url)        
             found_links = get_links(found_html)        
             add_new_links_to_horizon(found_links)
@@ -44,13 +24,15 @@ def crawl_website():
             logger.info('Key: %s', url)
             # logger.info('horizon: %s', horizon)
             if horizon[url][0] == False:
+                logger.info('horizon[url][0] == False:)')
                 crawl_website()
-            elif horizon[url][0] == True:                
+            elif horizon[url][0] == True:
+                logger.info('horizon[url][0] == False:)')
                 pass
             else:
                 logger.info('There was some kind of error in the checked_value check')
     logger.info('You\'ve reached the end of the list! Cheers!')
-    pprint.pprint(horizon)
+    # pprint.pprint(horizon)    
 
 def check_url(url):
     logger.info('The checked value of %s is %s' % (url, horizon[url][0]))
