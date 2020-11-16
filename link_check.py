@@ -18,64 +18,77 @@ def crawl_website(root_link):
 
     try:
         if check_if_new_link(root_link):
+
             # Assign webpage to page object
-            page = requests.get(root_link) #The issue is somehow here?
+            try:
+                page = requests.get(root_link) #The issue is somehow here?
+                # If the site returns a success code, then scrape for links        
+                if page.status_code == 200 and page.headers['Content-Type'] == 'text/html; charset=utf-8':
+                    logger.info('%s is an HTML page and returned a 200', root_link)
+                    soup = BeautifulSoup(page.text, 'html.parser')
+
+                    # Find all links
+                    for link in soup.find_all('a'):                    
+                        tmp_horizon.append(link.get('href'))                    
+
+                    # Scrub list of all irrelevant links
+                    clean_links(tmp_horizon)
+
+                    # Check all links in internal links to see if they've been checked before
+                    for tmp_link in internal_links:
+                        if check_if_new_link(tmp_link):                        
+                            to_visit.append(tmp_link)
+                else:                
+                    logger.info(root_link + ' is not returning a 200 or is not an HTML page ' + '| Status code: ' + str(page.status_code))
+                    bad_links.append(root_link + " | Status code: " + str(page.status_code))
+
+            except Exception as e:
+                logger.exception('There was an error checking root_link, %s : %s' % (root_link, e))
+                pass
 
             # Add current link to visted links list            
-            visited.append(root_link)
+            visited.append(root_link)        
 
-            # If the site returns a success code, then scrape for links        
-            if page.status_code == 200 and page.headers['Content-Type'] == 'text/html; charset=utf-8':
-                logger.info('%s is an HTML page and returned a 200', root_link)
-                soup = BeautifulSoup(page.text, 'html.parser')
-
-                # Find all links
-                for link in soup.find_all('a'):                    
-                    tmp_horizon.append(link.get('href'))                    
-
-                # Scrub list of all irrelevant links
-                clean_links(tmp_horizon)
-
-                # Check all links in internal links to see if they've been checked before
-                for tmp_link in internal_links:
-                    if check_if_new_link(tmp_link):                        
-                        to_visit.append(tmp_link)
-            else:                
-                logger.info(root_link + ' is not returning a 200 or is not an HTML page ' + '| Status code: ' + str(page.status_code))
-                bad_links.append(root_link + " | Status code: " + str(page.status_code))
-
-        if to_visit: # If the to_visit list contains a value
-            latest_link = to_visit.pop(0)
-            try: 
-                if validators.url(latest_link) and latest_link:
-                    crawl_website(latest_link) # Run the function again using this value
-                else:
-                    logger.info('%s is not a valid URL', latest_link)
-                    logger.info(latest_link)
-                    bad_links.append(latest_link)
-            except Exception as e:
-                logger.info(latest_link)
-                logger.exception(e)
-        else:
-            logger.info("These are the bad links found")
-            pprint.pprint((bad_links))
-            logger.info("You've reached the end of the list. Cheers!")
+        check_next_link(to_visit)
+        
     except Exception as e:                    
         logger.exception('root_link: ' + root_link)
         logger.exception(e)
         bad_links.append(root_link)
         pprint.pprint((bad_links))
 
+def check_next_link(links_to_visit):
+    if links_to_visit: # If the to_visit list contains a value
+        latest_link = to_visit.pop(0)
+        try: 
+            if validators.url(latest_link) and latest_link:
+                logger.info('Now checking: %s', latest_link)
+                crawl_website(latest_link)
+            else:
+                logger.info('%s is not a valid URL', latest_link)
+                logger.info(latest_link)
+                bad_links.append(latest_link)
+                the_next_next_link = links_to_visit.pop(0)
+                check_next_link(the_next_next_link)
+        except Exception as e:
+            logger.info(latest_link)
+            logger.exception(e)
+    else:
+        logger.info("These are the bad links found")
+        pprint.pprint((bad_links))
+        logger.info("You've reached the end of the list. Cheers!")
+
 def check_if_new_link(link_to_check):
-    if link_to_check not in to_visit and link_to_check not in visited:
-        to_visit.append(link_to_check)
+    if link_to_check not in to_visit and link_to_check not in visited:        
         return True
     else: 
         return False
 
 def clean_links(list_of_links):
     # Scrub list of all irrelevant links
-    for link in list_of_links: 
+    for link in list_of_links:
+        # if link != None and link != '' and link != '/':
+        #     logger.info('Link %s link[0:10] != \'javascript\': %r' % (link, link[0:10] != 'javascript'))
         try:         
             if link != None and link != '/' and link != '' and link[0:10] != 'link.aspx?' and link[0:3] != 'tel' and link != '/~' and link != '#' and link[0:10] != 'javascript' and link[0] != '#' and link[0:4] != 'http' and link[0:6] != 'mailto':                
                 full_url = urljoin(url, link) 
