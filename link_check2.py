@@ -1,61 +1,53 @@
 import requests
 import validators
 import pprint
+import re
 from logzero import logger
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
 pp = pprint.PrettyPrinter(indent=4)
 root_url = 'https://www.nyrr.org' # This should be the hostname / root URL as we will be appending to it later.
-horizon = {
-    root_url : [False, 200],
-}
+rule = re.compile(r"^[\w\/\.\-]+$")
+visited = {}
 
 # Master function (one function to rule them all)
-def crawl_website():
-    for url in list(horizon): # I think this might be where it is failing. The list never updates with the new URLs on the second pass. 
+def crawl_website(depth, url):
+    if visited.get(url):
+        return
+    depth = depth + 1
+    # Create a short-circuit here for testing.
+    if depth >= 3:
+        print('gotten to maximum recursive depth: {}'.format(depth))
         logger.info('-------[We are not checking this: %s url]------', url)
-        if check_url(url):
-            logger.info('Check URL returned True')
-            found_html = get_html(url)        
-            found_links = get_links(found_html)        
-            add_new_links_to_horizon(found_links)
-            
-            logger.info('Key: %s', url)
-            # logger.info('horizon: %s', horizon)
-            if horizon[url][0] == False:
-                logger.info('horizon[url][0] == False:)')
-                crawl_website()
-            elif horizon[url][0] == True:
-                logger.info('horizon[url][0] == False:)')
-                pass
-            else:
-                logger.info('There was some kind of error in the checked_value check')
+        return
+    if check_url(url):
+        logger.info('Check URL returned True')   
+        found_links = get_links(get_html(url))        
+        horizon = add_new_links_to_horizon(found_links)     
+        for u in horizon:
+            print('Key: {}'.format(u))
+            crawl_website(depth, u)
     logger.info('You\'ve reached the end of the list! Cheers!')
     # pprint.pprint(horizon)    
 
 def check_url(url):
-    logger.info('The checked value of %s is %s' % (url, horizon[url][0]))
-    if  url == root_url:
-        return True
-    elif url != None and check_rules(url[20:]):
-        return True
-    else:
-        horizon[url] = [True, 'bad url', 'bad url']            
-        logger.info('All the rules didnt pass')
-        return False
+    if url is not None and check_rules(url):
+        return True        
+    logger.info('All the rules didn\'t pass')
+    return False
 
 def get_html(url):
     page = requests.get(url)
-    if page.status_code == 200 and page.headers['Content-Type'] == 'text/html; charset=utf-8':        
-        horizon[url] = [True, page.status_code, page.headers['Content-Type']] #Why isn't this happening?
+    visited[url] = page.status_code
+    if (page.status_code >= 200 and page.status_code < 300) and page.headers['Content-Type'] == 'text/html; charset=utf-8':        
         page_html = BeautifulSoup(page.text, 'html.parser')            
         return page_html
-    else:
-        horizon[root_url + url] = [True, page.status_code, page.headers['Content-Type']]
-        logger.info('The get_html function failed')    
+    logger.info('The get_html function failed')    
 
 def get_links(url):
+    if url is None:
+        return
     current_page_links = {}
     for link in url.find_all('a'):
         if link != url:
@@ -63,31 +55,22 @@ def get_links(url):
     return current_page_links
 
 def add_new_links_to_horizon(current_page_links):
-    for url in current_page_links.keys():
-        full_url = urljoin(root_url, url)
-        if url != None and len(url) > 4 and check_rules(url):
-            if full_url not in horizon:
-                logger.info('This url is being added to the horizon: %s', full_url)
-                horizon[full_url] = [False, '', '']
+    horizon = []
+    if current_page_links is not None:
+        for url in current_page_links.keys():
+            full_url = urljoin(root_url, url)
+            if url is not None and len(url) > 4 and check_rules(url):
+                horizon.append(full_url)
+    return horizon
 
 def check_rules(url):
-    rules = [
-            url != None,
-            url != '/',
-            url != '',
-            url[0:10] != 'link.aspx?',
-            url[0:3] != 'tel',
-            url != '/~',
-            url != '#',
-            url[0:10] != 'javascript',            
-            url[0:4] != 'http',
-            url[0:6] != 'mailto'
-        ]
-    
-    # print('The URL %s returned %r to the rule check' % (url, all(rules)))
-    if all(rules):
+    u = re.sub(root_url, '', url)
+    print("checking url: {}".format(u))
+    if rule.match(u) is not None or u == "":
         return True
-    else:
-        return False  
+    return False
 
-crawl_website()
+crawl_website(0, root_url)
+
+for v in visited:
+    print("{} => {}\n".format(v, visited[v]))
